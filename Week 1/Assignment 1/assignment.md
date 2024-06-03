@@ -6,7 +6,8 @@ Assignment Link: https://github.com/Encode-Club-Solidity-Bootcamp/Lesson-04?tab=
 
 # Group 7
 Team Members:
-cax8Mr - [addi1402](https://github.com/addi1402) Adiya
+
+cax8Mr - [addi1402](https://github.com/addi1402) Aditya
 
 1Lbxcy - [Aravinds2511](https://github.com/Aravinds2511) Aravind
 
@@ -17,6 +18,7 @@ IG8lqp - [aashisham](https://github.com/aashisham) Ashish
 VEVWKu - @Chae-Ryeong(Chloe) Yeo
 
 ## Report
+
 
 Contract Address : [https://sepolia.etherscan.io/address/0x4Af7c74e6160A4AEB81Ec3446B6Db5D28B1A4Bd6](https://sepolia.etherscan.io/address/0x4Af7c74e6160A4AEB81Ec3446B6Db5D28B1A4Bd6)
 1. Arvind deployed the HelloWorld contract on sepolia testnet.Contract deployment was successful.
@@ -33,6 +35,8 @@ Current Owner: `0x24786D0dE04031fE1CC6c1EC53ADa442e72Bd9A`2 (Srijan)
 
 4. After changing the owner Arvind tried changing the text by calling the '`setText`' function as expected it reverted with "Fail with error 'Caller is not the owner".
 Transaction hash: `0xead5a602a7fb1e8c288f11c2c6220d689106a22b9cd03302c6c09504b41fc1c7`
+
+
 
 
 
