@@ -6,10 +6,14 @@ Assignment Link: https://github.com/Encode-Club-Solidity-Bootcamp/Lesson-04?tab=
 
 # Group 7
 Team Members:
-cax8Mr - [addi1402](https://github.com/addi1402)
-1Lbxcy - [Aravinds2511](https://github.com/Aravinds2511)
-Pmo958 - [vermasrijan](https://github.com/vermasrijan)
-IG8lqp - [aashisham](https://github.com/aashisham)
+cax8Mr - [addi1402](https://github.com/addi1402) Adiya
+
+1Lbxcy - [Aravinds2511](https://github.com/Aravinds2511) Aravind
+
+Pmo958 - [vermasrijan](https://github.com/vermasrijan) Srijan
+
+IG8lqp - [aashisham](https://github.com/aashisham) Ashish 
+
 VEVWKu - @Chae-Ryeong(Chloe) Yeo
 
 ## Report
