@@ -9,12 +9,22 @@ dotenv.config();
 const providerApiKey = process.env.ALCHEMY_API_KEY || "";
 const deployerPrivateKey = process.env.PRIVATE_KEY || "";
 
-// Hardcoded parameters
-const proposals = ["Proposal 1", "Proposal 2", "Proposal 3"].map(name => toHex(name, { size: 32 }));
-const tokenContractAddress = "0x6164f2d4a223cd8e473fcd7ad7eaba6879af110f" as `0x${string}`;
-const targetBlockNumber = "6118765";
+// // Hardcoded parameters
+// const proposals = ["Proposal 1", "Proposal 2", "Proposal 3"].map(name => toHex(name, { size: 32 }));
+// const tokenContractAddress = "0x6b9b3f48f22cf4b80826ba4c2023b652f4599277" as `0x${string}`;
+// const targetBlockNumber = "6125991";
 
 async function main() {
+  
+const args = process.argv.slice(2);
+  if (args.length < 3) {
+    throw new Error("Usage: node deploy.js <proposals> <tokenContractAddress> <targetBlockNumber>");
+  }
+
+  const proposals = args[0].split(",").map(name => toHex(name.trim(), { size: 32 }));
+  const tokenContractAddress = args[1];
+  const targetBlockNumber = args[2];
+
   // Validate token contract address
   if (!tokenContractAddress) throw new Error("Token contract address not provided");
   if (!/^0x[a-fA-F0-9]{40}$/.test(tokenContractAddress))
