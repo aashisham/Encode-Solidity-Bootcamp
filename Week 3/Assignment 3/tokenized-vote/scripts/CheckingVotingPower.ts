@@ -17,9 +17,9 @@ async function main() {
     throw new Error("Parameters not provided");
 
   const contractAddress = parameters[0] as `0x${string}`;
-  if (!contractAddress) throw new Error("Contract address not provided");
+  if (!contractAddress) throw new Error("Token Contract address not provided");
   if (!/^0x[a-fA-F0-9]{40}$/.test(contractAddress))
-    throw new Error("Invalid contract address");
+    throw new Error("Invalid token contract address");
 
   const voterAddress = parameters[1] as `0x${string}`;
   if (!voterAddress) throw new Error("voterAddress not provided");

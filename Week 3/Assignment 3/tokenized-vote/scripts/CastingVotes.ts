@@ -56,6 +56,19 @@ async function main() {
     console.log("Voting to proposal", name);
     console.log("Confirm? (Y/n)");
 
+    // Debug: Check voter voting power
+  // const voterAddress = account.address;
+  // const targetBlockNumber = 6126101 ; // Ensure this is the correct target block number
+
+  // const votePower = (await publicClient.readContract({
+  //   address: contractAddress,
+  //   abi,
+  //   functionName: "getVotePower",
+  //   args: [voterAddress],
+  // })) as bigint; // Explicitly typing as bigint
+
+  // console.log(`Voting power of ${voterAddress} at block ${targetBlockNumber}: ${votePower.toString()}`);
+
   const stdin = process.stdin;
   stdin.setEncoding('utf8');
 
