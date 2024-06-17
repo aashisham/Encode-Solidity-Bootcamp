@@ -36,8 +36,7 @@ contract TokenizedBallot {
     function vote(uint proposal, uint amount) external {
         require (
             getVotePower(msg.sender) >= amount,
-            "The amount to vote is too high"
-            );
+            "The amount to vote is too high");
         proposals[proposal].voteCount += amount ;
         votePowerSpent[msg.sender] += amount ;
     }
