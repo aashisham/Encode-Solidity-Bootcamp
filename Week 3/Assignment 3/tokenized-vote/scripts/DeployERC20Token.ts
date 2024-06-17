@@ -11,6 +11,11 @@ const deployerPrivateKey = process.env.PRIVATE_KEY || "";
 
 async function main() {
   const args = process.argv.slice(2);
+//   const initialSupply = process.env.INITIAL_SUPPLY;
+//   if ( !initialSupply){
+//     throw new Error("Initial supply argument not provided")
+//   }
+// this above can be used if we define fix initial supply value
   if (args.length < 1) {
     throw new Error("Initial supply argument not provided");
   }
