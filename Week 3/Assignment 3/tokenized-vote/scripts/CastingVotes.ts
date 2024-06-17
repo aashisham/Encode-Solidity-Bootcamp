@@ -1,7 +1,7 @@
 import { createPublicClient, http, createWalletClient, formatEther, toHex, hexToString, parseEther } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { sepolia } from "viem/chains";
-import { abi, bytecode } from "../artifacts/contracts/TokenisedVote.sol/TokenizedBallot.json";
+import { abi, bytecode } from "../artifacts/contracts/TokenizedBallot.sol/TokenizedBallot.json";
 
 import * as dotenv from "dotenv";
 dotenv.config();
