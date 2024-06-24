@@ -152,7 +152,7 @@ export class AppService {
       args: [address, amount]
     })
 
-    const receipt = await this.publicClient.waitForTransaction({
+    const receipt = await this.publicClient.getTransactionReceipt({
       hash: txHash
     });
   }
