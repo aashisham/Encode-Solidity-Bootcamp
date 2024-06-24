@@ -139,7 +139,8 @@ export class AppService {
 
   mintTokens(address: any) {
     // TODO : mint the tokens and get the receipts 
-    throw new Error('Method not implemented.');
+    const hash = "0xTODO";
+    return hash ;
   }
 
 }
