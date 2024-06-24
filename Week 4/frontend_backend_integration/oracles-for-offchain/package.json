@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "hardhat": "^2.22.5",
+    "usingtellor": "^5.0.5"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0"
+  }
+}
