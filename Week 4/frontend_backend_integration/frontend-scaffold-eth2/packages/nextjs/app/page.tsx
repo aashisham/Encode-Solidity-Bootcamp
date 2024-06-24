@@ -45,6 +45,7 @@ function WalletInfo() {
         <WalletAction/>
         <WalletBalance address={address as `0x${string}`}></WalletBalance>
         <TokenInfo address={address as `0x${string}`}></TokenInfo>
+        <ApiData address={address as `0x${string}`}></ApiData>
       </div>
     );
   if (isConnecting)
@@ -222,6 +223,40 @@ function RandomWord() {
         </h1>
         <p>Email: {data.email}</p>
       </div>
+    </div>
+  );
+}
+function ApiData(params: { address: `0x${string}` }) {
+  return (
+    <div className="card w-96 bg-primary text-primary-content mt-4">
+      <div className="card-body">
+        <h2 className="card-title">Testing API Coupling</h2>
+        <TokenAddressFromApi></TokenAddressFromApi>
+        <p>TODO</p>
+      </div>
+    </div>
+  );
+}
+
+function TokenAddressFromApi() {
+  const [data, setData] = useState<{ result: string }>();
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/contract-address")
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data);
+        setLoading(false);
+      });
+  }, []);
+
+  if (isLoading) return <p>Loading token address from API...</p>;
+  if (!data) return <p>No token address information</p>;
+
+  return (
+    <div>
+      <p>Token address from API: {data.result}</p>
     </div>
   );
 }
