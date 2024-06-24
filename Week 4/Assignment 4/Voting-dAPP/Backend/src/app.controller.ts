@@ -49,7 +49,12 @@ export class AppController {
 
   @Post('mint-tokens')
   async mintTokens(@Body() body: MintTokenDto) {
-    return {result: await this.appService.mintTokens(body.address)};
+    return {result: await this.appService.mintTokens(body.address , body.amount)};
+  }
+
+  @Post('recent-votes')
+  async storeRecentVote(@Body() voteDetails: any) {
+    return this.appService.storeRecentVote(voteDetails);
   }
   
 }

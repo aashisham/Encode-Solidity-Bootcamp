@@ -5,22 +5,28 @@ import * as tokenJson from './assets/MyToken.json';
 import 'dotenv/config';
 import { privateKeyToAccount } from 'viem/accounts';
 
+
+const providerApiKey = process.env.ALCHEMY_API_KEY || "";
+const deployerPrivateKey = process.env.PRIVATE_KEY || "";
+
 @Injectable()
 export class AppService {
   
   publicClient;
   walletClient;
+  private recentVotes = [];
+  
 
   constructor() {
     this.publicClient = createPublicClient({
       chain: sepolia ,
-      transport : http(process.env.RPC_ENDPOINT_URL) ,
+      transport : http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`) ,
     });
 
     this.walletClient = createWalletClient({
-      account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`),
+      account: privateKeyToAccount(`0x${deployerPrivateKey}`),
       chain: sepolia ,
-      transport : http(process.env.RPC_ENDPOINT_URL),
+      transport : http(`https://eth-sepolia.g.alchemy.com/v2/${providerApiKey}`),
     });
 
      // above creating walletclient also can be done like this
@@ -137,10 +143,26 @@ export class AppService {
     
   }
 
-  mintTokens(address: any) {
+ async mintTokens(address: any , amount:any ) {
     // TODO : mint the tokens and get the receipts 
-    const hash = "0xTODO";
-    return hash ;
+    const txHash = await this.walletClient.writeContract({
+      address: this.getContractAddress(),
+      abi: tokenJson.abi,
+      functionName: "mint",
+      args: [address, amount]
+    })
+
+    const receipt = await this.publicClient.waitForTransaction({
+      hash: txHash
+    });
+  }
+
+  async storeRecentVote(voteDetails: any) {
+    this.recentVotes.push(voteDetails);
+    if (this.recentVotes.length > 10) {
+      this.recentVotes.shift();
+    }
+    return { success: true, recentVotes: this.recentVotes };
   }
 
 }
