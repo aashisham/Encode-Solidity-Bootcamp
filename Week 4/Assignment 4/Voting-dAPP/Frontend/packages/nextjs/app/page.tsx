@@ -128,5 +128,171 @@ const Delegate = () => {
   );
 };
 
+interface Proposal {
+  id: number;
+  name: string;
+}
+
+interface VoteProps {
+  proposals: Proposal[];
+}
+
+const Vote: React.FC<VoteProps> = ({ proposals }) => {
+  const [selectedProposal, setSelectedProposal] = useState(proposals.length > 0 ? proposals[0].id : '');
+  const [amount, setAmount] = useState('');
+
+  const abi = [
+    {
+      inputs: [
+        { internalType: "uint256", name: "proposal", type: "uint256" },
+        { internalType: "uint256", name: "amount", type: "uint256" },
+      ],
+      name: "vote",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ];
+
+  const vote = async () => {
+    try {
+      const contractAddress = "0x82490d26f8bb201807de1ed176b58b5554a45735";
+      const hash = await delegator.writeContract({
+        address: contractAddress,
+        abi,
+        functionName: "vote",
+        args: [selectedProposal, amount],
+      });
+      console.log('Transaction hash:', hash);
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      console.log('Transaction confirmed', receipt);
+    } catch (error) {
+      console.error('Voting failed', error);
+    }
+  };
+
+  return (
+    <div>
+      <select
+        value={selectedProposal}
+        onChange={(e) => setSelectedProposal(parseInt(e.target.value))}
+        className="select select-bordered w-full max-w-xs mb-4"
+      >
+        {proposals.map((proposal) => (
+          <option key={proposal.id} value={proposal.id}>
+            {proposal.name}
+          </option>
+        ))}
+      </select>
+      <input
+        type="text"
+        placeholder="Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        className="input input-bordered w-full max-w-xs mb-4"
+      />
+      <button className="btn btn-active btn-neutral" onClick={vote}>
+        Vote
+      </button>
+    </div>
+  );
+};
+
+const QueryResult = () => {
+  const [winner, setWinner] = useState("");
+  const abi = [
+    {
+      inputs: [],
+      name: "winnerName",
+      outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+      stateMutability: "view",
+      type: "function",
+    },
+  ];
+
+  const result = async () => {
+    try {
+      const contractAddress = "0x82490d26f8bb201807de1ed176b58b5554a45735";
+      const lead = await publicClient.readContract({
+        address: contractAddress,
+        abi,
+        functionName: "winnerName",
+      });
+      setWinner(hexToString(lead as `0x${string}`, { size: 32 }));
+    } catch (error) {
+      console.error('Query failed', error);
+    }
+  };
+
+  return (
+    <div>
+      <button className="btn btn-active btn-neutral mb-4" onClick={result}>
+        Query Result
+      </button>
+      {winner && (
+        <div className="p-2 border rounded-lg">
+          <p className="mt-2">Winner: {winner}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const RequestTokens = () => {
+  const [address, setAddress] = useState("");
+  const [amount, setAmount] = useState("");
+  const [data, setData] = useState<{ result: boolean }>();
+  const [isLoading, setLoading] = useState(false);
+
+  const requestTokens = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:3001/mint-tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, amount }),
+      });
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error('Token request failed', error);
+      setData({ result: false });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Address"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        className="input input-bordered w-full max-w-xs mb-4"
+      />
+      <input
+        type="text"
+        placeholder="Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        className="input input-bordered w-full max-w-xs mb-4"
+      />
+      {isLoading ? (
+        <p>Requesting tokens from API...</p>
+      ) : (
+        <>
+          {!data ? (
+            <button className="btn btn-active btn-neutral" onClick={requestTokens}>
+              Request tokens
+            </button>
+          ) : (
+            <p>Result from API: {data.result ? 'worked' : 'failed'}</p>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
 
 export default Home;
