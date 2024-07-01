@@ -21,12 +21,24 @@ async function main() {
   mainMenu(rl);
 }
 
-async function initAccounts() {
-  // TODO
+async function getAccounts() {
+  return await viem.getWalletClients();
+}
+
+async function getClient() {
+  return await viem.getPublicClient();
 }
 
 async function initContracts() {
-  // TODO
+  const contract = await viem.deployContract("Lottery", [
+    "LotteryToken",
+    "LT0",
+    TOKEN_RATIO,
+    parseEther(BET_PRICE),
+    parseEther(BET_FEE),
+  ]);
+  contractAddress = contract.address;
+  tokenAddress = await contract.read.paymentToken();
 }
 
 async function mainMenu(rl: readline.Interface) {
@@ -158,52 +170,156 @@ function menuOptions(rl: readline.Interface) {
 }
 
 async function checkState() {
-  // TODO
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const state = await contract.read.betsOpen();
+  console.log(`The lottery is ${state ? "open" : "closed"}\n`);
+  if (!state) return;
+  const publicClient = await getClient();
+  const currentBlock = await publicClient.getBlock();
+  const timestamp = Number(currentBlock?.timestamp) ?? 0;
+  const currentBlockDate = new Date(timestamp * 1000);
+  const closingTime = await contract.read.betsClosingTime();
+  const closingTimeDate = new Date(Number(closingTime) * 1000);
+  console.log(
+    `The last block was mined at ${currentBlockDate.toLocaleDateString()} : ${currentBlockDate.toLocaleTimeString()}\n`
+  );
+  console.log(
+    `lottery should close at ${closingTimeDate.toLocaleDateString()} : ${closingTimeDate.toLocaleTimeString()}\n`
+  );
 }
 
 async function openBets(duration: string) {
-  // TODO
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const publicClient = await getClient();
+  const currentBlock = await publicClient.getBlock();
+  const timestamp = currentBlock?.timestamp ?? 0;
+  const tx = await contract.write.openBets([timestamp + BigInt(duration)]);
+  const receipt = await publicClient.getTransactionReceipt({ hash: tx });
+  console.log(`Bets opened (${receipt?.transactionHash})`);
 }
 
 async function displayBalance(index: string) {
-  // TODO
+  const publicClient = await getClient();
+  const accounts = await getAccounts();
+  const balanceBN = await publicClient.getBalance({
+    address: accounts[Number(index)].account.address,
+  });
+  const balance = formatEther(balanceBN);
+  console.log(
+    `The account of address ${
+      accounts[Number(index)].account.address
+    } has ${balance} ETH\n`
+  );
 }
 
 async function buyTokens(index: string, amount: string) {
-  // TODO
+  const accounts = await getAccounts();
+  const publicClient = await getClient();
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const tx = await contract.write.purchaseTokens({
+    value: parseEther(amount) / TOKEN_RATIO,
+    account: accounts[Number(index)].account,
+  });
+  const receipt = await publicClient.getTransactionReceipt({ hash: tx });
+  console.log(`Tokens bought (${receipt?.transactionHash})\n`);
 }
 
 async function displayTokenBalance(index: string) {
-  // TODO
+  const accounts = await getAccounts();
+  const token = await viem.getContractAt("LotteryToken", tokenAddress);
+  const balanceBN = await token.read.balanceOf([
+    accounts[Number(index)].account.address,
+  ]);
+  const balance = formatEther(balanceBN);
+  console.log(
+    `The account of address ${
+      accounts[Number(index)].account.address
+    } has ${balance} LT0\n`
+  );
 }
 
 async function bet(index: string, amount: string) {
-  // TODO
+  const accounts = await getAccounts();
+  const publicClient = await getClient();
+  const token = await viem.getContractAt("LotteryToken", tokenAddress);
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const allowTx = await token.write.approve([contractAddress, MAXUINT256], {
+    account: accounts[Number(index)].account,
+  });
+  await publicClient.getTransactionReceipt({ hash: allowTx });
+  const tx = await contract.write.betMany([BigInt(amount)], {
+    account: accounts[Number(index)].account,
+  });
+  const receipt = await publicClient.getTransactionReceipt({ hash: tx });
+  console.log(`Bets placed (${receipt?.transactionHash})\n`);
 }
 
 async function closeLottery() {
-  // TODO
+  const publicClient = await getClient();
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const tx = await contract.write.closeLottery();
+  const receipt = await publicClient.getTransactionReceipt({ hash: tx });
+  console.log(`Bets closed (${receipt?.transactionHash})\n`);
 }
 
-async function displayPrize(index: string) {
-  // TODO
-  return "TODO";
+async function displayPrize(index: string): Promise<string> {
+  const accounts = await getAccounts();
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const prizeBN = await contract.read.prize([
+    accounts[Number(index)].account.address,
+  ]);
+  const prize = formatEther(prizeBN);
+  console.log(
+    `The account of address ${
+      accounts[Number(index)].account.address
+    } has earned a prize of ${prize} Tokens\n`
+  );
+  return prize;
 }
 
 async function claimPrize(index: string, amount: string) {
-  // TODO
+  const accounts = await getAccounts();
+  const publicClient = await getClient();
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const tx = await contract.write.prizeWithdraw([parseEther(amount)], {
+    account: accounts[Number(index)].account,
+  });
+  const receipt = await publicClient.getTransactionReceipt({ hash: tx });
+  console.log(`Prize claimed (${receipt?.transactionHash})\n`);
 }
 
 async function displayOwnerPool() {
-  // TODO
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const balanceBN = await contract.read.ownerPool();
+  const balance = formatEther(balanceBN);
+  console.log(`The owner pool has (${balance}) Tokens \n`);
 }
 
 async function withdrawTokens(amount: string) {
-  // TODO
+  const publicClient = await getClient();
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const tx = await contract.write.ownerWithdraw([parseEther(amount)]);
+  const receipt = await publicClient.getTransactionReceipt({ hash: tx });
+  console.log(`Withdraw confirmed (${receipt?.transactionHash})\n`);
 }
 
 async function burnTokens(index: string, amount: string) {
-  // TODO
+  const accounts = await getAccounts();
+  const publicClient = await getClient();
+  const token = await viem.getContractAt("LotteryToken", tokenAddress);
+  const contract = await viem.getContractAt("Lottery", contractAddress);
+  const allowTx = await token.write.approve([contractAddress, MAXUINT256], {
+    account: accounts[Number(index)].account,
+  });
+  const receiptAllow = await publicClient.getTransactionReceipt({
+    hash: allowTx,
+  });
+  console.log(`Allowance confirmed (${receiptAllow?.transactionHash})\n`);
+  const tx = await contract.write.returnTokens([parseEther(amount)], {
+    account: accounts[Number(index)].account,
+  });
+  const receipt = await publicClient.getTransactionReceipt({ hash: tx });
+  console.log(`Burn confirmed (${receipt?.transactionHash})\n`);
 }
 
 main().catch((error) => {
